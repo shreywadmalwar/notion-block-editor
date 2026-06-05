@@ -36,7 +36,6 @@ export function useAutoSave(doc) {
   // trailing edge of the debounce never drops an edit.
   useEffect(() => {
     return () => saveDocument(docRef.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return status

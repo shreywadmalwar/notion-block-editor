@@ -119,7 +119,7 @@ export default function App() {
               failure deserves attention. */}
           {saveStatus === 'error' && (
             <span className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-600">
-              Couldn't save — storage may be full
+              Couldn&apos;t save — storage may be full
             </span>
           )}
         </div>
