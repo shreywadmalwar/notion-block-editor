@@ -93,8 +93,8 @@ export default function CodeBlock({ block, editor }) {
           language={block.language || 'javascript'}
         >
           {({ tokens, getLineProps, getTokenProps }) => (
-            {/* !bg-transparent: the prism theme ships its own background,
-                but the block's surface token must win for theming. */}
+            // !bg-transparent: the prism theme ships its own background,
+            // but the block's surface token must win for theming.
             <pre aria-hidden className={`${sharedStyle} pointer-events-none m-0 !bg-transparent`}>
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>
