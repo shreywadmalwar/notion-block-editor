@@ -56,12 +56,25 @@ export function deleteDocument(id) {
   localStorage.setItem(INDEX_KEY, JSON.stringify(index))
 }
 
-export function createDocument(title = 'Untitled') {
+// "Untitled 1", "Untitled 2", … — one more than the highest number already
+// taken. Identical names make the sidebar a guessing game; a plain "Untitled"
+// from before this scheme counts as number 1 so the sequence continues
+// rather than colliding with it.
+function nextUntitledName() {
+  let highest = 0
+  for (const { title } of readJSON(INDEX_KEY, [])) {
+    const match = /^Untitled(?: (\d+))?$/.exec(title || '')
+    if (match) highest = Math.max(highest, match[1] ? parseInt(match[1], 10) : 1)
+  }
+  return `Untitled ${highest + 1}`
+}
+
+export function createDocument(title) {
   // A new doc starts with one empty paragraph so the editor always has a
   // block to focus — an empty block array would leave the cursor nowhere.
   const doc = {
     id: crypto.randomUUID(),
-    title,
+    title: title || nextUntitledName(),
     blocks: [createBlock()],
   }
   saveDocument(doc)
