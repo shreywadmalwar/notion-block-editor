@@ -16,5 +16,12 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // `coarse:` variant for touch devices — hover-revealed controls (drag
+    // handles, delete buttons, code-block actions) must be permanently
+    // visible where hover doesn't exist.
+    function ({ addVariant }) {
+      addVariant('coarse', '@media (pointer: coarse)')
+    },
+  ],
 }

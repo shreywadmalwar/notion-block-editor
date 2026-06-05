@@ -63,7 +63,7 @@ export default function CodeBlock({ block, editor }) {
   return (
     <div className="group/code relative my-1 rounded-md bg-[#f6f6f4] border border-black/5">
       {/* Copy + language picker, faded until the block is hovered. */}
-      <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 group-hover/code:opacity-100 focus-within:opacity-100 transition-opacity print-hidden">
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 group-hover/code:opacity-100 focus-within:opacity-100 coarse:opacity-100 transition-opacity print-hidden">
         <button
           onClick={copy}
           title="Copy code"

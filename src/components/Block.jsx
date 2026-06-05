@@ -26,19 +26,24 @@ export default function Block({ block, editor, onSlash, number }) {
         opacity: isDragging ? 0.4 : 1,
       }}
       // group/block scopes the hover reveal to this block alone; a plain
-      // `group` would collide with the code block's own hover group.
-      className="group/block relative flex items-start"
+      // `group` would collide with the code block's own hover group. The
+      // faint hover tint ties the far-left drag handle visually to the block
+      // it belongs to on wide screens.
+      className="group/block relative flex items-start rounded transition-colors duration-100 hover:bg-black/[0.02]"
     >
       {/* Drag handle gutter: lives in negative margin so block text stays
           perfectly aligned with the title above. Invisible until hover —
           the "distraction-free" promise means chrome appears only on demand. */}
       <div className="absolute -left-8 top-0.5 flex h-7 items-center print-hidden">
         <button
+          // attributes includes tabIndex={0} and the sortable aria props —
+          // keeping it focusable is what makes dnd-kit's keyboard sensor
+          // reachable (space to lift, arrows to move, space to drop).
           {...attributes}
           {...listeners}
-          tabIndex={-1}
           title="Drag to move"
-          className="cursor-grab active:cursor-grabbing rounded px-0.5 py-1 text-ink-light opacity-0 group-hover/block:opacity-100 hover:bg-black/5 transition-opacity select-none"
+          aria-label="Drag to reorder — space to lift, arrows to move"
+          className="cursor-grab active:cursor-grabbing rounded px-0.5 py-1 text-ink-light opacity-0 group-hover/block:opacity-100 focus-visible:opacity-100 coarse:opacity-60 hover:bg-black/5 transition-opacity select-none"
         >
           {/* Six-dot grip, drawn with text — no icon dependency needed. */}
           <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
