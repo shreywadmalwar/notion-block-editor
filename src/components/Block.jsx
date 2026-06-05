@@ -1,0 +1,54 @@
+// The chrome around every block: dnd-kit sortable registration plus the
+// drag handle that fades in on hover. The handle is the *only* drag
+// activator — making the whole block draggable would fight with text
+// selection inside contentEditable.
+
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import BlockRenderer from './BlockRenderer'
+
+export default function Block({ block, editor, onSlash, number }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: block.id })
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        // The dragged block stays visible but ghosted in place while its
+        // siblings animate around it — clearer than dnd-kit's default of
+        // moving the original.
+        opacity: isDragging ? 0.4 : 1,
+      }}
+      // group/block scopes the hover reveal to this block alone; a plain
+      // `group` would collide with the code block's own hover group.
+      className="group/block relative flex items-start"
+    >
+      {/* Drag handle gutter: lives in negative margin so block text stays
+          perfectly aligned with the title above. Invisible until hover —
+          the "distraction-free" promise means chrome appears only on demand. */}
+      <div className="absolute -left-8 top-0.5 flex h-7 items-center print-hidden">
+        <button
+          {...attributes}
+          {...listeners}
+          tabIndex={-1}
+          title="Drag to move"
+          className="cursor-grab active:cursor-grabbing rounded px-0.5 py-1 text-ink-light opacity-0 group-hover/block:opacity-100 hover:bg-black/5 transition-opacity select-none"
+        >
+          {/* Six-dot grip, drawn with text — no icon dependency needed. */}
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+            <circle cx="2.5" cy="3" r="1.4" /><circle cx="7.5" cy="3" r="1.4" />
+            <circle cx="2.5" cy="8" r="1.4" /><circle cx="7.5" cy="8" r="1.4" />
+            <circle cx="2.5" cy="13" r="1.4" /><circle cx="7.5" cy="13" r="1.4" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <BlockRenderer block={block} editor={editor} onSlash={onSlash} number={number} />
+      </div>
+    </div>
+  )
+}
