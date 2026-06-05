@@ -25,8 +25,9 @@ export function useAutoSave(doc) {
     }
     setStatus('saving')
     const timer = setTimeout(() => {
-      saveDocument(docRef.current)
-      setStatus('saved')
+      // 'error' (quota, private mode) is the one state the UI must shout
+      // about — see the indicator in App.
+      setStatus(saveDocument(docRef.current) ? 'saved' : 'error')
     }, 2000)
     return () => clearTimeout(timer)
   }, [doc])

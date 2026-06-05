@@ -31,15 +31,23 @@ export function loadDocument(id) {
 }
 
 export function saveDocument(doc) {
-  const updatedAt = Date.now()
-  localStorage.setItem(DOC_PREFIX + doc.id, JSON.stringify({ ...doc, updatedAt }))
+  // setItem throws on quota overflow and in some private-browsing modes.
+  // Returning false (instead of throwing) lets the autosave layer surface
+  // "couldn't save" honestly — a silently false "Saved" indicator is worse
+  // than no indicator at all.
+  try {
+    const updatedAt = Date.now()
+    localStorage.setItem(DOC_PREFIX + doc.id, JSON.stringify({ ...doc, updatedAt }))
 
-  // Keep the index in sync: replace this doc's entry (or append it) without
-  // touching the others.
-  const index = readJSON(INDEX_KEY, []).filter((d) => d.id !== doc.id)
-  index.push({ id: doc.id, title: doc.title, updatedAt })
-  localStorage.setItem(INDEX_KEY, JSON.stringify(index))
-  return updatedAt
+    // Keep the index in sync: replace this doc's entry (or append it)
+    // without touching the others.
+    const index = readJSON(INDEX_KEY, []).filter((d) => d.id !== doc.id)
+    index.push({ id: doc.id, title: doc.title, updatedAt })
+    localStorage.setItem(INDEX_KEY, JSON.stringify(index))
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function deleteDocument(id) {

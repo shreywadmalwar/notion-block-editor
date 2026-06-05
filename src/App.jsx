@@ -100,9 +100,14 @@ export default function App() {
           >
             {sidebarOpen ? '«' : '☰'}
           </button>
-          <span className="text-xs text-ink-light/70">
-            {saveStatus === 'saving' ? 'Saving…' : 'Saved'}
-          </span>
+          {/* Autosave is invisible while it works — status changes draw the
+              eye, and "Saving…/Saved" flicker on every pause is noise. Only
+              failure deserves attention. */}
+          {saveStatus === 'error' && (
+            <span className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-600">
+              Couldn't save — storage may be full
+            </span>
+          )}
         </div>
 
         <Editor
