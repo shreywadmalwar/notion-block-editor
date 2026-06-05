@@ -234,7 +234,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
             }
           }}
           placeholder="Untitled"
-          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[40px] font-bold leading-tight text-ink outline-none placeholder:text-ink-light/40 print-title"
+          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[40px] font-bold leading-tight text-ink outline-none placeholder:text-faint print-title"
         />
 
         <div ref={contentRef}>
@@ -274,7 +274,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
       {!slashOpen && <FloatingToolbar rect={selectionRect} active={activeFormats} />}
 
       {/* Bottom status bar: word count, pinned to the editor's bottom edge. */}
-      <div className="print-hidden sticky bottom-0 flex justify-end border-t border-black/5 bg-paper/90 px-4 py-1.5 text-xs text-ink-light backdrop-blur">
+      <div className="print-hidden sticky bottom-0 flex justify-end border-t border-line bg-paper px-4 py-1.5 text-xs text-ink-light">
         {wordCount} {wordCount === 1 ? 'word' : 'words'}
       </div>
     </div>

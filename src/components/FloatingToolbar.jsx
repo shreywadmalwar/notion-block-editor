@@ -20,7 +20,7 @@ export default function FloatingToolbar({ rect, active = {} }) {
 
   return (
     <div
-      className="fixed z-50 flex items-center gap-0.5 rounded-lg border border-black/10 bg-white p-1 shadow-lg shadow-black/10 print-hidden"
+      className="fixed z-50 flex items-center gap-0.5 rounded-lg border border-line bg-paper p-1 shadow-lg shadow-black/20 print-hidden"
       style={{ left, top: Math.max(8, rect.top - 44) }}
       // Swallow mousedown so clicking a button doesn't collapse the text
       // selection it's meant to format.
@@ -34,8 +34,8 @@ export default function FloatingToolbar({ rect, active = {} }) {
           onClick={() => applyFormat(btn.command)}
           // Active formats get a filled background so the button reads as a
           // toggle — the user can tell whether pressing adds or removes.
-          className={`flex h-7 w-9 items-center justify-center rounded text-sm hover:bg-black/5 ${
-            active[btn.command] ? 'bg-black/10 text-ink' : 'text-ink'
+          className={`flex h-7 w-9 items-center justify-center rounded text-sm hover:bg-hov ${
+            active[btn.command] ? 'bg-active text-ink' : 'text-ink'
           } ${btn.className}`}
         >
           {btn.label}

@@ -48,18 +48,18 @@ export default function SlashMenu({ anchorRect, query, onSelect, onClose, active
       ref={menuRef}
       role="listbox"
       aria-label={`Block types${query ? `, filtered by ${query}` : ''}`}
-      className="fixed z-50 w-64 max-h-72 overflow-y-auto rounded-lg border border-black/10 bg-white py-1.5 shadow-xl shadow-black/10 print-hidden"
+      className="fixed z-50 w-64 max-h-72 overflow-y-auto rounded-lg border border-line bg-paper py-1.5 shadow-xl shadow-black/20 print-hidden"
       style={{
         left: Math.min(anchorRect.left, window.innerWidth - 270),
         top: flipUp ? undefined : anchorRect.bottom + 6,
         bottom: flipUp ? window.innerHeight - anchorRect.top + 6 : undefined,
       }}
     >
-      <div className="px-3 pb-1 pt-0.5 text-xs font-medium uppercase tracking-wide text-ink-light">
+      <div className="px-3 pb-1 pt-0.5 text-xs font-medium uppercase tracking-wide text-faint">
         Blocks{query ? ` · "${query}"` : ''}
       </div>
       {items.length === 0 && (
-        <div className="px-3 py-2 text-sm text-ink-light">No results</div>
+        <div className="px-3 py-2 text-sm text-faint">No results</div>
       )}
       {items.map((item, i) => (
         <button
@@ -73,10 +73,10 @@ export default function SlashMenu({ anchorRect, query, onSelect, onClose, active
             onSelect(item.type)
           }}
           className={`flex w-full items-center gap-3 px-3 py-1.5 text-left text-sm text-ink ${
-            i === activeIndex ? 'bg-black/5' : 'hover:bg-black/[0.03]'
+            i === activeIndex ? 'bg-active' : 'hover:bg-hov'
           }`}
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-black/10 bg-wash font-mono text-xs text-ink-light">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-line bg-wash font-mono text-xs text-ink-light">
             {item.icon}
           </span>
           {item.label}

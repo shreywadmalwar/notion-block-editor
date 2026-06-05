@@ -2,21 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- Theme tokens ---------------------------------------------------------
+   Every color in the app routes through these variables (Tailwind maps them
+   to utilities in tailwind.config). Components never know which theme is
+   active — flipping the .dark class on <html> re-skins everything at once.
+   The dark values are lifted from Notion's own dark theme: #191919 canvas,
+   #202020 rail, white at 81%/46% for primary/secondary text. */
+:root {
+  color-scheme: light;
+  --bg-app: #ffffff;
+  --bg-sidebar: #f7f7f5;
+  --bg-hover: rgba(55, 53, 47, 0.05);
+  --bg-active: rgba(55, 53, 47, 0.08);
+  --bg-field: rgba(55, 53, 47, 0.055);
+  --bg-code: #f6f6f4;
+  --border: rgba(55, 53, 47, 0.09);
+  --border-strong: rgba(55, 53, 47, 0.16);
+  --text-1: #37352f;
+  --text-2: #79766f;
+  --text-3: #9b9a97;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg-app: #191919;
+  --bg-sidebar: #202020;
+  --bg-hover: rgba(255, 255, 255, 0.055);
+  --bg-active: rgba(255, 255, 255, 0.09);
+  --bg-field: rgba(255, 255, 255, 0.05);
+  --bg-code: #242424;
+  --border: rgba(255, 255, 255, 0.094);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text-1: rgba(255, 255, 255, 0.81);
+  --text-2: rgba(255, 255, 255, 0.46);
+  --text-3: rgba(255, 255, 255, 0.28);
+}
+
 /* The system font stack Notion itself uses — instantly familiar, zero
    webfont latency. */
 body {
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji";
   -webkit-font-smoothing: antialiased;
+  background: var(--bg-app);
+  color: var(--text-1);
 }
 
 /* Inline code produced by the Ctrl+` toggle, anywhere it appears in rich
    text. Styled globally because the HTML lives inside contentEditable
-   content strings where we can't attach utility classes. */
+   content strings where we can't attach utility classes. The red reads on
+   both themes. */
 [contenteditable] code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
-  background: rgba(135, 131, 120, 0.15);
+  background: rgba(135, 131, 120, 0.18);
   color: #eb5757;
   border-radius: 3px;
   padding: 0.1em 0.35em;
@@ -24,9 +63,18 @@ body {
 
 /* ---- Print / PDF export -------------------------------------------------
    "Export to PDF" is window.print(); these rules strip every piece of app
-   chrome so only the document column renders, clean enough to hand to
-   someone as a finished PDF. */
+   chrome so only the document column renders. Print always uses the light
+   palette — dark pages waste toner and look broken on paper, whatever theme
+   the screen had. */
 @media print {
+  :root, .dark {
+    --bg-app: #ffffff;
+    --bg-code: #f6f6f4;
+    --border: rgba(55, 53, 47, 0.09);
+    --text-1: #37352f;
+    --text-2: #79766f;
+  }
+
   .print-hidden {
     display: none !important;
   }

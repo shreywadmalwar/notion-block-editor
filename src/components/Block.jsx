@@ -29,7 +29,7 @@ export default function Block({ block, editor, onSlash, number }) {
       // `group` would collide with the code block's own hover group. The
       // faint hover tint ties the far-left drag handle visually to the block
       // it belongs to on wide screens.
-      className="group/block relative flex items-start rounded transition-colors duration-100 hover:bg-black/[0.02]"
+      className="group/block relative flex items-start rounded transition-colors duration-100 hover:bg-hov"
     >
       {/* Drag handle gutter: lives in negative margin so block text stays
           perfectly aligned with the title above. Invisible until hover —
@@ -43,7 +43,7 @@ export default function Block({ block, editor, onSlash, number }) {
           {...listeners}
           title="Drag to move"
           aria-label="Drag to reorder — space to lift, arrows to move"
-          className="cursor-grab active:cursor-grabbing rounded px-0.5 py-1 text-ink-light opacity-0 group-hover/block:opacity-100 focus-visible:opacity-100 coarse:opacity-60 hover:bg-black/5 transition-opacity select-none"
+          className="cursor-grab active:cursor-grabbing rounded px-0.5 py-1 text-ink-light opacity-0 group-hover/block:opacity-100 focus-visible:opacity-100 coarse:opacity-60 hover:bg-hov transition-opacity select-none"
         >
           {/* Six-dot grip, drawn with text — no icon dependency needed. */}
           <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">

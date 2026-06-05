@@ -4,6 +4,7 @@
 // without a single line of reset logic.
 
 import { useCallback, useEffect, useState } from 'react'
+import { ThemeContext, useThemeState } from './theme'
 import Sidebar from './components/Sidebar'
 import NavBar from './components/NavBar'
 import Editor from './components/Editor'
@@ -15,6 +16,7 @@ import { exportPDF } from './services/exportPDF'
 export default function App() {
   const [docs, setDocs] = useState(() => listDocuments())
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [theme, toggleTheme] = useThemeState()
 
   // Open the most recent doc; a completely fresh browser gets the guided
   // starter document instead of a blank page.
@@ -91,6 +93,7 @@ export default function App() {
   }
 
   return (
+    <ThemeContext.Provider value={theme}>
     <div className="flex h-screen bg-paper text-ink">
       <Sidebar
         open={sidebarOpen}
@@ -115,6 +118,8 @@ export default function App() {
           saveStatus={saveStatus}
           onExportMarkdown={() => downloadMarkdown(doc.blocks, doc.title)}
           onExportPDF={() => exportPDF(doc.title)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
 
         <Editor
@@ -125,5 +130,6 @@ export default function App() {
         />
       </main>
     </div>
+    </ThemeContext.Provider>
   )
 }

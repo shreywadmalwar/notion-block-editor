@@ -45,13 +45,18 @@ function DocumentRow({ doc, isActive, onSelect, onRename, onDelete }) {
 
   return (
     <div
-      className={`group flex items-center gap-1.5 rounded px-2 py-1 text-sm cursor-pointer ${
-        isActive ? 'bg-black/[0.06] text-ink' : 'text-ink/80 hover:bg-black/[0.04]'
+      className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-sm cursor-pointer transition-colors ${
+        isActive ? 'bg-active text-ink' : 'text-ink-light hover:bg-hov hover:text-ink'
       }`}
       onClick={() => onSelect(doc.id)}
       onDoubleClick={() => setEditing(true)}
     >
-      <span className="text-ink-light shrink-0">📄</span>
+      {/* Page glyph drawn inline — emoji render inconsistently across
+          platforms and can't follow the theme's text color. */}
+      <svg className="shrink-0 text-faint" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+      </svg>
       {editing ? (
         <input
           ref={inputRef}
@@ -63,14 +68,14 @@ function DocumentRow({ doc, isActive, onSelect, onRename, onDelete }) {
             if (e.key === 'Escape') { setDraft(doc.title); setEditing(false) }
           }}
           onClick={(e) => e.stopPropagation()}
-          className="w-full bg-white rounded border border-black/10 px-1 outline-none"
+          className="w-full rounded border border-line-strong bg-paper px-1 text-ink outline-none"
         />
       ) : (
         <span className="min-w-0 flex-1">
           <span className={`block truncate ${isActive ? 'font-medium' : ''}`}>
             {doc.title || 'Untitled'}
           </span>
-          <span className="block text-[10px] leading-tight text-ink-light/80">
+          <span className="block text-[10px] leading-tight text-faint">
             {timeAgo(doc.updatedAt)}
           </span>
         </span>
@@ -98,7 +103,7 @@ function DocumentRow({ doc, isActive, onSelect, onRename, onDelete }) {
             e.stopPropagation()
             setConfirming(true)
           }}
-          className="shrink-0 rounded p-1.5 opacity-0 group-hover:opacity-100 coarse:opacity-60 text-ink-light hover:bg-red-50 hover:text-red-500 transition-opacity"
+          className="shrink-0 rounded p-1.5 opacity-0 group-hover:opacity-100 coarse:opacity-60 text-ink-light hover:bg-red-500/10 hover:text-red-500 transition-opacity"
         >
           {/* Trash can, drawn inline — reads as "delete" at a glance where
               the old × read as "close". */}
@@ -119,7 +124,7 @@ export default function DocumentList({ docs, activeId, onSelect, onRename, onDel
   return (
     <div className="flex flex-col gap-0.5 overflow-y-auto px-2">
       {docs.length === 0 && (
-        <div className="px-2 py-3 text-xs text-ink-light">No matching documents</div>
+        <div className="px-2 py-3 text-xs text-faint">No matching documents</div>
       )}
       {docs.map((doc) => (
         <DocumentRow

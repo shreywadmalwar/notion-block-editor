@@ -46,7 +46,7 @@ export default function BlockRenderer({ block, editor, onSlash, number }) {
           }}
           className="py-3 flex items-center rounded outline-none cursor-pointer focus:bg-blue-500/[0.07]"
         >
-          <hr className="w-full border-t border-black/15" />
+          <hr className="w-full border-t border-line-strong" />
         </div>
       )
     default:

@@ -81,7 +81,7 @@ export default function ContentEditable({
       // The placeholder is rendered by CSS (:empty::before) off this data
       // attribute — contentEditable has no native placeholder support.
       data-placeholder={placeholder}
-      className={`outline-none whitespace-pre-wrap break-words empty:before:content-[attr(data-placeholder)] empty:before:text-ink-light/60 empty:before:pointer-events-none ${className}`}
+      className={`outline-none whitespace-pre-wrap break-words empty:before:content-[attr(data-placeholder)] empty:before:text-faint empty:before:pointer-events-none ${className}`}
       onInput={(e) => editor.updateBlock(block.id, { content: e.currentTarget.innerHTML })}
       onKeyDown={onKeyDown}
       // Pasting styled HTML from other apps would smuggle in fonts, colors

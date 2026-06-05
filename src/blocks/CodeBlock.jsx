@@ -10,12 +10,15 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Highlight, themes } from 'prism-react-renderer'
+import { useTheme } from '../theme'
 
 const LANGUAGES = ['javascript', 'jsx', 'typescript', 'python', 'css', 'markup', 'bash', 'json', 'sql', 'go', 'rust']
 
 export default function CodeBlock({ block, editor }) {
   const textareaRef = useRef(null)
   const [copied, setCopied] = useState(false)
+  // Prism's palette can't follow CSS variables — pick per theme instead.
+  const theme = useTheme()
 
   const copy = async () => {
     await navigator.clipboard.writeText(block.content)
@@ -61,13 +64,13 @@ export default function CodeBlock({ block, editor }) {
   const sharedStyle = 'font-mono text-[13px] leading-[1.6] p-4 whitespace-pre-wrap break-words'
 
   return (
-    <div className="group/code relative my-1 rounded-md bg-[#f6f6f4] border border-black/5">
+    <div className="group/code relative my-1 rounded-md bg-codebg border border-line">
       {/* Copy + language picker, faded until the block is hovered. */}
       <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 group-hover/code:opacity-100 focus-within:opacity-100 coarse:opacity-100 transition-opacity print-hidden">
         <button
           onClick={copy}
           title="Copy code"
-          className="rounded px-1.5 py-0.5 text-xs text-ink-light hover:bg-black/5 hover:text-ink"
+          className="rounded px-1.5 py-0.5 text-xs text-ink-light hover:bg-hov hover:text-ink"
         >
           {copied ? '✓ Copied' : 'Copy'}
         </button>
@@ -84,9 +87,15 @@ export default function CodeBlock({ block, editor }) {
         {/* Highlighted layer: pointer-events pass through to the textarea.
             The trailing newline keeps the pre's height in step with the
             textarea when the content ends in an empty line. */}
-        <Highlight theme={themes.vsLight} code={block.content + '\n'} language={block.language || 'javascript'}>
+        <Highlight
+          theme={theme === 'dark' ? themes.vsDark : themes.vsLight}
+          code={block.content + '\n'}
+          language={block.language || 'javascript'}
+        >
           {({ tokens, getLineProps, getTokenProps }) => (
-            <pre aria-hidden className={`${sharedStyle} pointer-events-none m-0 bg-transparent`}>
+            {/* !bg-transparent: the prism theme ships its own background,
+                but the block's surface token must win for theming. */}
+            <pre aria-hidden className={`${sharedStyle} pointer-events-none m-0 !bg-transparent`}>
               {tokens.map((line, i) => (
                 <div key={i} {...getLineProps({ line })}>
                   {line.map((token, j) => <span key={j} {...getTokenProps({ token })} />)}
@@ -105,7 +114,7 @@ export default function CodeBlock({ block, editor }) {
           onKeyDown={onKeyDown}
           // text-transparent lets the highlighted layer show through, but it
           // would also hide the placeholder — restore its color explicitly.
-          className={`${sharedStyle} absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-ink outline-none placeholder:text-ink-light/60`}
+          className={`${sharedStyle} absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-ink outline-none placeholder:text-faint`}
         />
       </div>
     </div>
