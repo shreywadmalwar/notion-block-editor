@@ -8,6 +8,7 @@ import { ThemeContext, useThemeState } from './theme'
 import Sidebar from './components/Sidebar'
 import NavBar from './components/NavBar'
 import Editor from './components/Editor'
+import About from './components/About'
 import { useAutoSave } from './hooks/useAutoSave'
 import { listDocuments, loadDocument, createDocument, createStarterDocument, deleteDocument, saveDocument } from './services/storage'
 import { downloadMarkdown } from './services/exportMarkdown'
@@ -17,6 +18,10 @@ export default function App() {
   const [docs, setDocs] = useState(() => listDocuments())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [theme, toggleTheme] = useThemeState()
+
+  // 'editor' or 'about' — no router needed for two views. Picking a document
+  // from the sidebar always returns to the editor.
+  const [view, setView] = useState('editor')
 
   // Open the most recent doc; a completely fresh browser gets the guided
   // starter document instead of a blank page.
@@ -57,6 +62,7 @@ export default function App() {
   const onTitleChange = (title) => setDoc((d) => ({ ...d, title }))
 
   const selectDoc = (id) => {
+    setView('editor')
     if (id === doc.id) return
     // Persist the outgoing doc immediately — don't gamble on the debounce.
     saveDocument(doc)
@@ -120,14 +126,19 @@ export default function App() {
           onExportPDF={() => exportPDF(doc.title)}
           theme={theme}
           onToggleTheme={toggleTheme}
+          onShowAbout={() => setView('about')}
         />
 
-        <Editor
-          key={doc.id}
-          doc={doc}
-          onBlocksChange={onBlocksChange}
-          onTitleChange={onTitleChange}
-        />
+        {view === 'about' ? (
+          <About onBack={() => setView('editor')} />
+        ) : (
+          <Editor
+            key={doc.id}
+            doc={doc}
+            onBlocksChange={onBlocksChange}
+            onTitleChange={onTitleChange}
+          />
+        )}
       </main>
     </div>
     </ThemeContext.Provider>

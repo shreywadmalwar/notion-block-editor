@@ -19,6 +19,7 @@ export default function NavBar({
   onExportPDF,
   theme,
   onToggleTheme,
+  onShowAbout,
 }) {
   return (
     <nav className="print-hidden flex h-11 shrink-0 items-center gap-2 border-b border-line bg-paper px-3">
@@ -55,6 +56,9 @@ export default function NavBar({
             Couldn&apos;t save — storage may be full
           </span>
         )}
+        <button onClick={onShowAbout} className={buttonChrome}>
+          About
+        </button>
         <button onClick={onExportMarkdown} className={buttonChrome}>
           ↓ Markdown
         </button>
