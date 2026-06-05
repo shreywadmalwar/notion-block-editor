@@ -14,6 +14,9 @@ export default function Block({ block, editor, onSlash, number }) {
   return (
     <div
       ref={setNodeRef}
+      // The id lets floating UIs (slash menu) re-find this block's DOM node
+      // to track it through scrolling.
+      data-block-id={block.id}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,

@@ -12,6 +12,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useEditor } from '../hooks/useEditor'
 import { useDragDrop } from '../hooks/useDragDrop'
+import { selectionInsideCode } from '../hooks/useKeyboard'
 import { BlockType } from '../types/blockTypes'
 import Block from './Block'
 import SlashMenu, { filterSlashItems } from './SlashMenu'
@@ -100,10 +101,19 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
 
   // ---- Floating toolbar ---------------------------------------------------
   // Track the live selection; show the toolbar only for real (non-collapsed)
-  // selections inside our content column, and never while the slash menu has
-  // the stage.
+  // selections inside a *single* rich-text block, and never while the slash
+  // menu has the stage. Cross-block selections are excluded deliberately:
+  // execCommand can't format across separate contentEditable roots, and a
+  // toolbar that visibly does nothing erodes trust in every other button.
   const [selectionRect, setSelectionRect] = useState(null)
+  const [activeFormats, setActiveFormats] = useState({})
+
   useEffect(() => {
+    const editableOf = (node) => {
+      if (!node) return null
+      const el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement
+      return el?.closest('[contenteditable]') || null
+    }
     const update = () => {
       const sel = window.getSelection()
       if (
@@ -113,18 +123,42 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
         setSelectionRect(null)
         return
       }
-      // Selections inside the code textarea aren't formattable rich text.
-      const anchorEl = sel.anchorNode.nodeType === Node.ELEMENT_NODE
-        ? sel.anchorNode : sel.anchorNode.parentElement
-      if (!anchorEl?.closest('[contenteditable]')) {
+      const anchorEditable = editableOf(sel.anchorNode)
+      const focusEditable = editableOf(sel.focusNode)
+      if (!anchorEditable || anchorEditable !== focusEditable) {
         setSelectionRect(null)
         return
       }
+      // queryCommandState reads the formatting at the selection so the
+      // toolbar can show which formats are already on — pressing B on bold
+      // text should look like "turn off", not a no-op mystery.
+      setActiveFormats({
+        bold: document.queryCommandState('bold'),
+        italic: document.queryCommandState('italic'),
+        underline: document.queryCommandState('underline'),
+        code: !!selectionInsideCode(),
+      })
       setSelectionRect(sel.getRangeAt(0).getBoundingClientRect())
     }
     document.addEventListener('selectionchange', update)
     return () => document.removeEventListener('selectionchange', update)
   }, [])
+
+  // Both floating UIs anchor to fixed-position rects captured at open time;
+  // scrolling would leave them hovering over the wrong content. Re-measure
+  // on every scroll of the editor column.
+  const onScroll = () => {
+    if (slash) {
+      const el = document.querySelector(`[data-block-id="${slash.blockId}"]`)
+      if (el) setSlash((s) => s && { ...s, anchorRect: el.getBoundingClientRect() })
+    }
+    if (selectionRect) {
+      const sel = window.getSelection()
+      if (sel && !sel.isCollapsed && sel.rangeCount > 0) {
+        setSelectionRect(sel.getRangeAt(0).getBoundingClientRect())
+      }
+    }
+  }
 
   // ---- Derived display data ----------------------------------------------
   // Numbered-list counters: each numbered block's number is its position in
@@ -168,7 +202,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
   }
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-y-auto" onKeyDownCapture={onKeyDownCapture}>
+    <div className="flex h-full flex-1 flex-col overflow-y-auto" onKeyDownCapture={onKeyDownCapture} onScroll={onScroll}>
       <div className="mx-auto w-full max-w-[720px] flex-1 px-8 pb-32 pt-16 print-content" onClick={onCanvasClick}>
         {/* Document title — an input, not contentEditable: titles are plain
             text and inputs give us placeholder + selection behavior for free. */}
@@ -222,7 +256,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
       )}
 
       {/* Toolbar yields to the slash menu — two floating UIs at once is noise. */}
-      {!slashOpen && <FloatingToolbar rect={selectionRect} />}
+      {!slashOpen && <FloatingToolbar rect={selectionRect} active={activeFormats} />}
 
       {/* Bottom status bar: word count, pinned to the editor's bottom edge. */}
       <div className="print-hidden sticky bottom-0 flex justify-end border-t border-black/5 bg-paper/90 px-4 py-1.5 text-xs text-ink-light backdrop-blur">

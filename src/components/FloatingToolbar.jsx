@@ -11,7 +11,7 @@ const BUTTONS = [
   { command: 'code', label: '</>', title: 'Inline code (⌘`)', className: 'font-mono text-[11px]' },
 ]
 
-export default function FloatingToolbar({ rect }) {
+export default function FloatingToolbar({ rect, active = {} }) {
   if (!rect) return null
 
   // Center over the selection, clamped so it never slides off-screen on
@@ -30,8 +30,13 @@ export default function FloatingToolbar({ rect }) {
         <button
           key={btn.command}
           title={btn.title}
+          aria-pressed={!!active[btn.command]}
           onClick={() => applyFormat(btn.command)}
-          className={`flex h-7 w-9 items-center justify-center rounded text-sm text-ink hover:bg-black/5 ${btn.className}`}
+          // Active formats get a filled background so the button reads as a
+          // toggle — the user can tell whether pressing adds or removes.
+          className={`flex h-7 w-9 items-center justify-center rounded text-sm hover:bg-black/5 ${
+            active[btn.command] ? 'bg-black/10 text-ink' : 'text-ink'
+          } ${btn.className}`}
         >
           {btn.label}
         </button>
