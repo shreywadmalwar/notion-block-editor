@@ -12,15 +12,41 @@
 
 import { useEffect, useLayoutEffect, useRef } from 'react'
 
-// Put the caret at the start or end of an element's content.
+// Put the caret at 'start', 'end', or a character offset of an element's
+// content. The numeric form exists for block merges: the caret lands at the
+// seam between the two joined texts, which means walking text nodes until
+// the offset is spent — formatting tags make "character N" a tree position.
 function placeCaret(el, position) {
   el.focus()
   const range = document.createRange()
-  range.selectNodeContents(el)
-  range.collapse(position === 'start')
+  if (typeof position === 'number') {
+    let remaining = position
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    let node = null
+    let placed = false
+    while ((node = walker.nextNode())) {
+      if (remaining <= node.textContent.length) {
+        range.setStart(node, remaining)
+        range.collapse(true)
+        placed = true
+        break
+      }
+      remaining -= node.textContent.length
+    }
+    if (!placed) {
+      range.selectNodeContents(el)
+      range.collapse(false)
+    }
+  } else {
+    range.selectNodeContents(el)
+    range.collapse(position === 'start')
+  }
   const sel = window.getSelection()
   sel.removeAllRanges()
   sel.addRange(range)
+  // A block created at the bottom of the viewport would otherwise sit hidden
+  // behind the sticky word-count bar — keep the caret's block in view.
+  el.scrollIntoView({ block: 'nearest' })
 }
 
 export default function ContentEditable({

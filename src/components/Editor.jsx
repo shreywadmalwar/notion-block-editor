@@ -61,15 +61,27 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
   }
 
   const selectSlashItem = (type) => {
-    editor.transformBlock(slash.blockId, type)
+    // Explicitly clear content: the block holds the "/query" filter text the
+    // user typed, which must not survive into the transformed block.
+    editor.transformBlock(slash.blockId, type, '')
     setSlash(null)
   }
 
-  // While the menu is open, capture navigation keys before they reach the
-  // block: arrows steer the menu instead of the caret, Enter picks instead
-  // of inserting a block. Everything else falls through so the user keeps
-  // typing their filter into the block itself.
+  // Capture-phase keys, in priority order: undo/redo first (they must work
+  // everywhere in the editor, and must beat the browser's native undo, which
+  // knows nothing about block structure), then slash-menu navigation while
+  // the menu is open. Everything else falls through to the blocks.
   const onKeyDownCapture = (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+      // The title textarea keeps its own native undo — its text isn't part
+      // of the block history.
+      if (e.target.dataset?.title) return
+      e.preventDefault()
+      e.stopPropagation()
+      if (e.shiftKey) editor.redo()
+      else editor.undo()
+      return
+    }
     if (!slashOpen) return
     if (e.key === 'ArrowDown') {
       e.preventDefault(); e.stopPropagation()
@@ -149,8 +161,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
     if (e.target !== e.currentTarget) return
     const last = editor.blocks[editor.blocks.length - 1]
     if (last && last.type !== BlockType.DIVIDER && last.type !== BlockType.CODE) {
-      editor.requestFocus(last.id, 'end')
-      editor.updateBlock(last.id, {}) // no-op patch to trigger the render that consumes focus
+      editor.focusBlock(last.id, 'end')
     } else if (last) {
       editor.insertBlockAfter(last.id)
     }
@@ -162,6 +173,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
         {/* Document title — an input, not contentEditable: titles are plain
             text and inputs give us placeholder + selection behavior for free. */}
         <input
+          data-title="true"
           value={doc.title}
           onChange={(e) => onTitleChange(e.target.value)}
           onKeyDown={(e) => {
@@ -169,10 +181,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
             if (e.key === 'Enter') {
               e.preventDefault()
               const first = editor.blocks[0]
-              if (first) {
-                editor.requestFocus(first.id, 'start')
-                editor.updateBlock(first.id, {})
-              }
+              if (first) editor.focusBlock(first.id, 'start')
             }
           }}
           placeholder="Untitled"

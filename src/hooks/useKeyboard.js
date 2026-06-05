@@ -10,8 +10,9 @@
 import { useCallback } from 'react'
 import { isListBlock } from '../types/blockTypes'
 
-// Is the caret sitting inside a <code> element? Drives the inline-code toggle.
-function selectionInsideCode() {
+// Is the caret sitting inside a <code> element? Drives the inline-code toggle
+// and the toolbar's active state.
+export function selectionInsideCode() {
   const sel = window.getSelection()
   if (!sel || !sel.anchorNode) return null
   let node = sel.anchorNode
@@ -45,16 +46,40 @@ export function applyFormat(command) {
   else document.execCommand(command, false)
 }
 
-// Caret-position probes: Backspace should only delete the block when there's
-// nothing left in it, and ArrowUp/Down should only leave the block from its
-// first/last visual line. getSelection gives us enough to approximate both.
+// Caret-position probe: true when nothing precedes the (collapsed) caret.
+// Backspace uses it to decide between deleting text and merging blocks.
 function caretAtStart(el) {
   const sel = window.getSelection()
-  if (!sel || sel.rangeCount === 0) return false
+  if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return false
   const range = sel.getRangeAt(0).cloneRange()
   range.selectNodeContents(el)
   range.setEnd(sel.anchorNode, sel.anchorOffset)
   return range.toString() === ''
+}
+
+// Serialize the HTML on each side of the caret — the raw material for
+// Enter-splitting a block. cloneContents keeps formatting tags intact, so
+// splitting inside a bold run leaves both halves bold.
+function splitAtCaret(el) {
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return null
+  const range = sel.getRangeAt(0)
+  const beforeRange = range.cloneRange()
+  beforeRange.selectNodeContents(el)
+  beforeRange.setEnd(range.startContainer, range.startOffset)
+  const afterRange = range.cloneRange()
+  afterRange.selectNodeContents(el)
+  afterRange.setStart(range.endContainer, range.endOffset)
+
+  const serialize = (fragment) => {
+    const div = document.createElement('div')
+    div.appendChild(fragment)
+    return div.innerHTML
+  }
+  return {
+    before: serialize(beforeRange.cloneContents()),
+    after: serialize(afterRange.cloneContents()),
+  }
 }
 
 export function useKeyboard({ block, editor, onSlash }) {
@@ -73,24 +98,28 @@ export function useKeyboard({ block, editor, onSlash }) {
 
     switch (e.key) {
       case 'Enter':
-        // Plain Enter makes a new block; Shift+Enter falls through to the
-        // browser's default soft line-break inside the current block.
+        // Plain Enter splits the block at the caret — text after the cursor
+        // moves into the new block, exactly like every editor users know.
+        // Shift+Enter falls through to the browser's soft line-break.
         if (!e.shiftKey) {
           e.preventDefault()
-          editor.insertBlockAfter(block.id)
+          const parts = splitAtCaret(e.currentTarget)
+          if (parts) editor.insertBlockAfter(block.id, parts.before, parts.after)
+          else editor.insertBlockAfter(block.id)
         }
         break
 
       case 'Backspace': {
-        const empty = e.currentTarget.textContent === ''
-        if (empty || caretAtStart(e.currentTarget)) {
-          // Empty block → delete it. Caret-at-start with content → Notion
-          // would merge into the previous block; we keep the simpler spec
-          // behavior and only act on truly empty blocks.
-          if (empty) {
-            e.preventDefault()
-            editor.deleteBlock(block.id)
-          }
+        const el = e.currentTarget
+        if (el.textContent === '') {
+          // Empty block → remove it (lists downgrade first; see deleteBlock).
+          e.preventDefault()
+          editor.deleteBlock(block.id)
+        } else if (caretAtStart(el)) {
+          // Caret at the very start with content → flow this block's text
+          // into the one above. The inverse of Enter-split.
+          e.preventDefault()
+          editor.mergeWithPrevious(block.id)
         }
         break
       }

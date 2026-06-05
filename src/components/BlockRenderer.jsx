@@ -26,10 +26,26 @@ export default function BlockRenderer({ block, editor, onSlash, number }) {
     case BlockType.QUOTE:
       return <QuoteBlock block={block} editor={editor} onKeyDown={onKeyDown} />
     case BlockType.DIVIDER:
-      // Not editable, but clickable-to-delete via the handle; the hit area is
-      // taller than the 1px rule so it's actually possible to interact with.
+      // No caret can live inside a divider, so it takes focus as a whole:
+      // click selects it (tinted background), Backspace/Delete removes it,
+      // arrows move on. Without this a divider would be immortal — every
+      // block the user can create must be deletable.
       return (
-        <div className="py-3 flex items-center" role="separator">
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label="Divider — press Backspace to delete"
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+              e.preventDefault()
+              editor.deleteBlock(block.id)
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+              e.preventDefault()
+              editor.focusNeighbor(block.id, e.key === 'ArrowUp' ? -1 : 1)
+            }
+          }}
+          className="py-3 flex items-center rounded outline-none cursor-pointer focus:bg-blue-500/[0.07]"
+        >
           <hr className="w-full border-t border-black/15" />
         </div>
       )
