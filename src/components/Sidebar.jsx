@@ -3,6 +3,7 @@
 // is instant and scroll position survives. The whole rail is print-hidden —
 // PDF export must show only the document.
 
+import { useState } from 'react'
 import DocumentList from './DocumentList'
 
 export default function Sidebar({
@@ -16,6 +17,13 @@ export default function Sidebar({
   onExportMarkdown,
   onExportPDF,
 }) {
+  // Title search — a flat list stops scaling past ~10 documents. Filtering
+  // here keeps DocumentList dumb and the query out of App.
+  const [query, setQuery] = useState('')
+  const visible = query.trim()
+    ? docs.filter((d) => (d.title || 'untitled').toLowerCase().includes(query.toLowerCase()))
+    : docs
+
   return (
     <aside
       className={`print-hidden shrink-0 overflow-hidden border-r border-black/5 bg-wash transition-[width] duration-200 ${
@@ -36,8 +44,17 @@ export default function Sidebar({
           </button>
         </div>
 
+        <div className="px-3 pb-2">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search…"
+            className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-ink outline-none placeholder:text-ink-light/60 focus:border-black/20"
+          />
+        </div>
+
         <DocumentList
-          docs={docs}
+          docs={visible}
           activeId={activeId}
           onSelect={onSelect}
           onRename={onRename}
