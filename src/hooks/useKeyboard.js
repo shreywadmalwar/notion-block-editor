@@ -8,7 +8,21 @@
 // For a local-first editor this is the right trade.
 
 import { useCallback } from 'react'
-import { isListBlock } from '../types/blockTypes'
+import { BlockType, isListBlock } from '../types/blockTypes'
+
+// Markdown prefixes that transform a paragraph as you type: the trigger text
+// followed by a space becomes the block type. This is the fluency feature of
+// block editors — reaching for the slash menu for every heading is twice the
+// friction of just typing "# ".
+const MD_TRIGGERS = {
+  '#': BlockType.HEADING1,
+  '##': BlockType.HEADING2,
+  '###': BlockType.HEADING3,
+  '-': BlockType.BULLETED,
+  '*': BlockType.BULLETED,
+  '1.': BlockType.NUMBERED,
+  '>': BlockType.QUOTE,
+}
 
 // Is the caret sitting inside a <code> element? Drives the inline-code toggle
 // and the toolbar's active state.
@@ -155,6 +169,37 @@ export function useKeyboard({ block, editor, onSlash }) {
         }
         break
       }
+
+      case ' ': {
+        // Markdown shortcuts fire when the block's entire content is a
+        // trigger and space lands — restricted to paragraphs so typing "# "
+        // inside an existing heading or list doesn't re-transform it.
+        if (block.type === BlockType.PARAGRAPH) {
+          const target = MD_TRIGGERS[e.currentTarget.textContent]
+          if (target) {
+            e.preventDefault()
+            editor.transformBlock(block.id, target, '')
+          }
+        }
+        break
+      }
+
+      case '`':
+        // Typing the third backtick on a line of "``" opens a code block.
+        if (block.type === BlockType.PARAGRAPH && e.currentTarget.textContent === '``') {
+          e.preventDefault()
+          editor.transformBlock(block.id, BlockType.CODE, '')
+        }
+        break
+
+      case '-':
+        // "---" becomes a divider as the third dash lands (transformBlock
+        // adds the follow-up paragraph to keep typing into).
+        if (block.type === BlockType.PARAGRAPH && e.currentTarget.textContent === '--') {
+          e.preventDefault()
+          editor.transformBlock(block.id, BlockType.DIVIDER, '')
+        }
+        break
 
       case '/':
         // Only an empty block summons the menu — mid-sentence slashes (dates,
