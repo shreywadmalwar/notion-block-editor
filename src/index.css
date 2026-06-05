@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The system font stack Notion itself uses — instantly familiar, zero
+   webfont latency. */
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Inline code produced by the Ctrl+` toggle, anywhere it appears in rich
+   text. Styled globally because the HTML lives inside contentEditable
+   content strings where we can't attach utility classes. */
+[contenteditable] code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: rgba(135, 131, 120, 0.15);
+  color: #eb5757;
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+}
+
+/* ---- Print / PDF export -------------------------------------------------
+   "Export to PDF" is window.print(); these rules strip every piece of app
+   chrome so only the document column renders, clean enough to hand to
+   someone as a finished PDF. */
+@media print {
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Undo the app-shell scroll containment so content paginates naturally
+     instead of clipping to one viewport-sized page. */
+  html, body, #root {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .flex.h-screen {
+    height: auto !important;
+    display: block !important;
+  }
+  main {
+    display: block !important;
+  }
+  .overflow-y-auto {
+    overflow: visible !important;
+  }
+
+  .print-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Keep code blocks and quotes from being sliced across page breaks. */
+  pre, blockquote {
+    break-inside: avoid;
+  }
+}
