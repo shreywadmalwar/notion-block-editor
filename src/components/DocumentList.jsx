@@ -45,8 +45,10 @@ function DocumentRow({ doc, isActive, onSelect, onRename, onDelete }) {
 
   return (
     <div
-      className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-sm cursor-pointer transition-colors ${
-        isActive ? 'bg-active text-ink' : 'text-ink-light hover:bg-hov hover:text-ink'
+      // Titles stay at full text strength whether or not the row is active —
+      // only the background marks selection. Dimmed titles read as disabled.
+      className={`group flex items-center gap-1.5 rounded-md px-2 py-1 text-sm cursor-pointer text-ink transition-colors ${
+        isActive ? 'bg-active' : 'hover:bg-hov'
       }`}
       onClick={() => onSelect(doc.id)}
       onDoubleClick={() => setEditing(true)}

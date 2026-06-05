@@ -33,9 +33,9 @@
   --bg-code: #242424;
   --border: rgba(255, 255, 255, 0.094);
   --border-strong: rgba(255, 255, 255, 0.18);
-  --text-1: rgba(255, 255, 255, 0.81);
-  --text-2: rgba(255, 255, 255, 0.46);
-  --text-3: rgba(255, 255, 255, 0.28);
+  --text-1: rgba(255, 255, 255, 0.96);
+  --text-2: rgba(255, 255, 255, 0.62);
+  --text-3: rgba(255, 255, 255, 0.35);
 }
 
 /* The system font stack Notion itself uses — instantly familiar, zero
