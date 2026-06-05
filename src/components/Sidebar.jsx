@@ -32,24 +32,31 @@ export default function Sidebar({
     >
       {/* Fixed inner width prevents the content reflowing during the
           collapse animation — it slides out of view instead of squishing. */}
-      <div className="flex h-full w-60 flex-col py-3">
+      <div className="flex h-full w-60 flex-col pb-3 pt-4">
+        {/* Nude/charcoal header: a quiet uppercase label in warm grey with a
+            bordered + that reads as a real control, not a stray glyph. */}
         <div className="flex items-center justify-between px-4 pb-3">
-          <span className="text-sm font-semibold text-ink">Documents</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#79766f]">
+            Documents
+          </span>
           <button
             onClick={onCreate}
             title="New document"
-            className="rounded px-1.5 py-0.5 text-ink-light hover:bg-black/5 hover:text-ink"
+            aria-label="New document"
+            className="flex h-6 w-6 items-center justify-center rounded-md border border-[#e3e1dc] bg-[#fbfbfa] text-[15px] leading-none text-[#79766f] shadow-sm transition-colors hover:border-[#d6d3cc] hover:bg-white hover:text-[#37352f]"
           >
             +
           </button>
         </div>
 
+        {/* Search sits flush in the wash as a soft inset field, sharpening
+            to white + charcoal text only when focused. */}
         <div className="px-3 pb-2">
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search…"
-            className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-ink outline-none placeholder:text-ink-light/60 focus:border-black/20"
+            className="w-full rounded-md border border-transparent bg-[#37352f]/[0.055] px-2.5 py-1.5 text-sm text-[#37352f] outline-none transition-colors placeholder:text-[#9b9a97] focus:border-[#d6d3cc] focus:bg-white"
           />
         </div>
 
@@ -61,17 +68,18 @@ export default function Sidebar({
           onDelete={onDelete}
         />
 
-        {/* Export lives at the bottom, away from the writing flow. */}
-        <div className="mt-auto flex flex-col gap-1 border-t border-black/5 px-2 pt-3">
+        {/* Export lives at the bottom, away from the writing flow — same
+            warm-grey voice as the header, darkening to charcoal on hover. */}
+        <div className="mt-auto flex flex-col gap-0.5 border-t border-[#e9e7e2] px-2 pt-3">
           <button
             onClick={onExportMarkdown}
-            className="rounded px-2 py-1.5 text-left text-sm text-ink/80 hover:bg-black/[0.04]"
+            className="rounded-md px-2 py-1.5 text-left text-sm text-[#79766f] transition-colors hover:bg-[#37352f]/[0.05] hover:text-[#37352f]"
           >
             ↓ Export Markdown
           </button>
           <button
             onClick={onExportPDF}
-            className="rounded px-2 py-1.5 text-left text-sm text-ink/80 hover:bg-black/[0.04]"
+            className="rounded-md px-2 py-1.5 text-left text-sm text-[#79766f] transition-colors hover:bg-[#37352f]/[0.05] hover:text-[#37352f]"
           >
             ↓ Export PDF
           </button>
