@@ -14,8 +14,6 @@ export default function Sidebar({
   onCreate,
   onRename,
   onDelete,
-  onExportMarkdown,
-  onExportPDF,
 }) {
   // Title search — a flat list stops scaling past ~10 documents. Filtering
   // here keeps DocumentList dumb and the query out of App.
@@ -68,22 +66,6 @@ export default function Sidebar({
           onDelete={onDelete}
         />
 
-        {/* Export lives at the bottom, away from the writing flow — same
-            warm-grey voice as the header, darkening to charcoal on hover. */}
-        <div className="mt-auto flex flex-col gap-0.5 border-t border-[#e9e7e2] px-2 pt-3">
-          <button
-            onClick={onExportMarkdown}
-            className="rounded-md px-2 py-1.5 text-left text-sm text-[#79766f] transition-colors hover:bg-[#37352f]/[0.05] hover:text-[#37352f]"
-          >
-            ↓ Export Markdown
-          </button>
-          <button
-            onClick={onExportPDF}
-            className="rounded-md px-2 py-1.5 text-left text-sm text-[#79766f] transition-colors hover:bg-[#37352f]/[0.05] hover:text-[#37352f]"
-          >
-            ↓ Export PDF
-          </button>
-        </div>
       </div>
     </aside>
   )

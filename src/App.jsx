@@ -100,8 +100,6 @@ export default function App() {
         onCreate={createDoc}
         onRename={renameDoc}
         onDelete={removeDoc}
-        onExportMarkdown={() => downloadMarkdown(doc.blocks, doc.title)}
-        onExportPDF={() => exportPDF(doc.title)}
       />
 
       <main className="relative flex min-w-0 flex-1 flex-col">
@@ -115,6 +113,8 @@ export default function App() {
           title={doc.title}
           onTitleChange={onTitleChange}
           saveStatus={saveStatus}
+          onExportMarkdown={() => downloadMarkdown(doc.blocks, doc.title)}
+          onExportPDF={() => exportPDF(doc.title)}
         />
 
         <Editor
