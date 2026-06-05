@@ -5,6 +5,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Sidebar from './components/Sidebar'
+import NavBar from './components/NavBar'
 import Editor from './components/Editor'
 import { useAutoSave } from './hooks/useAutoSave'
 import { listDocuments, loadDocument, createDocument, createStarterDocument, deleteDocument, saveDocument } from './services/storage'
@@ -104,25 +105,17 @@ export default function App() {
       />
 
       <main className="relative flex min-w-0 flex-1 flex-col">
-        {/* Sidebar toggle + save indicator float in the top corner, outside
-            the writing column, so the canvas itself stays empty. */}
-        <div className="print-hidden absolute left-2 top-2 z-10 flex items-center gap-2">
-          <button
-            onClick={() => setSidebarOpen((o) => !o)}
-            title={sidebarOpen ? 'Collapse sidebar' : 'Open sidebar'}
-            className="rounded p-1.5 text-ink-light hover:bg-black/5 hover:text-ink"
-          >
-            {sidebarOpen ? '«' : '☰'}
-          </button>
-          {/* Autosave is invisible while it works — status changes draw the
-              eye, and "Saving…/Saved" flicker on every pause is noise. Only
-              failure deserves attention. */}
-          {saveStatus === 'error' && (
-            <span className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-600">
-              Couldn&apos;t save — storage may be full
-            </span>
-          )}
-        </div>
+        {/* Nav bar carries the sidebar toggle, the renamable breadcrumb
+            title (same state as the canvas title — edit either) and the
+            save-failure indicator. Routine saves stay invisible: status
+            flicker on every pause is noise, only failure deserves the eye. */}
+        <NavBar
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen((o) => !o)}
+          title={doc.title}
+          onTitleChange={onTitleChange}
+          saveStatus={saveStatus}
+        />
 
         <Editor
           key={doc.id}
