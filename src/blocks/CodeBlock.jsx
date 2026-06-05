@@ -61,7 +61,7 @@ export default function CodeBlock({ block, editor }) {
 
   // Shared metrics for both layers — any drift between textarea and pre
   // misaligns the caret from the text it appears to edit.
-  const sharedStyle = 'font-mono text-[13px] leading-[1.6] p-4 whitespace-pre-wrap break-words'
+  const sharedStyle = 'font-mono text-[15px] leading-[1.6] p-4 whitespace-pre-wrap break-words'
 
   return (
     <div className="group/code relative my-1 rounded-md bg-codebg border border-line">

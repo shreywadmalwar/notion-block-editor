@@ -77,7 +77,7 @@ function DocumentRow({ doc, isActive, onSelect, onRename, onDelete }) {
           <span className={`block truncate ${isActive ? 'font-medium' : ''}`}>
             {doc.title || 'Untitled'}
           </span>
-          <span className="block text-[10px] leading-tight text-ink-light">
+          <span className="block text-[11px] leading-tight text-ink-light">
             {timeAgo(doc.updatedAt)}
           </span>
         </span>

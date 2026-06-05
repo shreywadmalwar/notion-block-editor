@@ -14,7 +14,7 @@ export default function ListBlock({ block, editor, onKeyDown, number }) {
 
   return (
     <div className="flex items-start py-0.5" style={{ paddingLeft: indentPx }}>
-      <span className="w-6 shrink-0 select-none text-[16px] leading-7 text-ink text-center">
+      <span className="w-6 shrink-0 select-none text-[18px] leading-8 text-ink text-center">
         {block.type === BlockType.BULLETED ? '•' : `${number}.`}
       </span>
       <ContentEditable
@@ -22,7 +22,7 @@ export default function ListBlock({ block, editor, onKeyDown, number }) {
         editor={editor}
         onKeyDown={onKeyDown}
         placeholder="List item"
-        className="flex-1 text-[16px] leading-7 text-ink"
+        className="flex-1 text-[18px] leading-8 text-ink"
       />
     </div>
   )

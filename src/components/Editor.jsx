@@ -234,7 +234,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
             }
           }}
           placeholder="Untitled"
-          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[40px] font-bold leading-tight text-ink outline-none placeholder:text-faint print-title"
+          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[44px] font-bold leading-tight text-ink outline-none placeholder:text-faint print-title"
         />
 
         <div ref={contentRef}>

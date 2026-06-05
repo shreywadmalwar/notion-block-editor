@@ -6,9 +6,9 @@ export default function About({ onBack }) {
   return (
     <div className="flex h-full flex-1 flex-col overflow-y-auto">
       <div className="mx-auto w-full max-w-[720px] flex-1 px-8 pb-32 pt-16">
-        <h1 className="mb-6 text-[40px] font-bold leading-tight text-ink">About this project</h1>
+        <h1 className="mb-6 text-[44px] font-bold leading-tight text-ink">About this project</h1>
 
-        <div className="space-y-5 text-[16px] leading-7 text-ink">
+        <div className="space-y-5 text-[18px] leading-8 text-ink">
           <p>
             This is a block based text editor, built in the style of Notion.
             Everything you write lives in blocks. A block can be a paragraph,
@@ -17,7 +17,7 @@ export default function About({ onBack }) {
             style the text inside them.
           </p>
 
-          <h2 className="pt-4 text-[22px] font-semibold">Why blocks?</h2>
+          <h2 className="pt-4 text-[24px] font-semibold">Why blocks?</h2>
           <p>
             A normal text editor treats your document as one long stream of
             text. That makes it hard to move a section, or turn a paragraph
@@ -26,7 +26,7 @@ export default function About({ onBack }) {
             on its own. The rest of the document stays untouched.
           </p>
 
-          <h2 className="pt-4 text-[22px] font-semibold">What it can do</h2>
+          <h2 className="pt-4 text-[24px] font-semibold">What it can do</h2>
           <ul className="list-disc space-y-2 pl-6">
             <li>Type <code>/</code> on an empty line to pick a block type from a menu.</li>
             <li>Start a line with <code>#</code>, <code>-</code> or <code>1.</code> and a space, and the block changes as you type.</li>
@@ -39,7 +39,7 @@ export default function About({ onBack }) {
             <li>Switch between a light and a dark look from the top bar.</li>
           </ul>
 
-          <h2 className="pt-4 text-[22px] font-semibold">Where your writing goes</h2>
+          <h2 className="pt-4 text-[24px] font-semibold">Where your writing goes</h2>
           <p>
             Nowhere. There is no server and no account. Your documents are
             saved inside your own browser, in a small storage area that
@@ -50,7 +50,7 @@ export default function About({ onBack }) {
             about.
           </p>
 
-          <h2 className="pt-4 text-[22px] font-semibold">How it is built</h2>
+          <h2 className="pt-4 text-[24px] font-semibold">How it is built</h2>
           <p>
             The app is written in JavaScript with React and built with Vite.
             Styling is done with Tailwind CSS. Drag and drop comes from the

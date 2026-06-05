@@ -38,6 +38,13 @@
   --text-3: rgba(255, 255, 255, 0.35);
 }
 
+/* Global type scale: Tailwind's text-xs/sm/base are rem-based, so raising
+   the root size enlarges every label, menu and control in one move. The
+   editor's own px sizes are bumped alongside in their components. */
+html {
+  font-size: 17px;
+}
+
 /* The system font stack Notion itself uses — instantly familiar, zero
    webfont latency. */
 body {

@@ -37,7 +37,7 @@ export default function Sidebar({
         {/* A quiet uppercase label with a bordered + that reads as a real
             control, not a stray glyph. */}
         <div className="flex items-center justify-between px-4 pb-3">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-light">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-ink-light">
             Documents
           </span>
           <button

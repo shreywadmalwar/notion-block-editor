@@ -11,7 +11,7 @@ export default function QuoteBlock({ block, editor, onKeyDown }) {
         editor={editor}
         onKeyDown={onKeyDown}
         placeholder="Empty quote"
-        className="text-[16px] leading-7 text-ink italic py-0.5"
+        className="text-[18px] leading-8 text-ink italic py-0.5"
       />
     </blockquote>
   )

@@ -14,7 +14,7 @@ export default function ParagraphBlock({ block, editor, onKeyDown }) {
         editor={editor}
         onKeyDown={onKeyDown}
         placeholder={focused ? "Type '/' for commands…" : ''}
-        className="text-[16px] leading-7 text-ink py-0.5"
+        className="text-[18px] leading-8 text-ink py-0.5"
       />
     </div>
   )
