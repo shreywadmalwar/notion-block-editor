@@ -8,13 +8,20 @@
 // Unlike the rich-text blocks, content here is plain text (never HTML), which
 // is also what the markdown exporter expects when it emits the fenced block.
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Highlight, themes } from 'prism-react-renderer'
 
 const LANGUAGES = ['javascript', 'jsx', 'typescript', 'python', 'css', 'markup', 'bash', 'json', 'sql', 'go', 'rust']
 
 export default function CodeBlock({ block, editor }) {
   const textareaRef = useRef(null)
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(block.content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   // Honor pending focus requests, same contract as ContentEditable.
   useEffect(() => {
@@ -55,14 +62,23 @@ export default function CodeBlock({ block, editor }) {
 
   return (
     <div className="group/code relative my-1 rounded-md bg-[#f6f6f4] border border-black/5">
-      {/* Language picker, faded until the block is hovered. */}
-      <select
-        value={block.language}
-        onChange={(e) => editor.updateBlock(block.id, { language: e.target.value })}
-        className="absolute right-2 top-2 z-10 text-xs text-ink-light bg-transparent opacity-0 group-hover/code:opacity-100 focus:opacity-100 transition-opacity cursor-pointer outline-none print-hidden"
-      >
-        {LANGUAGES.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
-      </select>
+      {/* Copy + language picker, faded until the block is hovered. */}
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 group-hover/code:opacity-100 focus-within:opacity-100 transition-opacity print-hidden">
+        <button
+          onClick={copy}
+          title="Copy code"
+          className="rounded px-1.5 py-0.5 text-xs text-ink-light hover:bg-black/5 hover:text-ink"
+        >
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+        <select
+          value={block.language}
+          onChange={(e) => editor.updateBlock(block.id, { language: e.target.value })}
+          className="text-xs text-ink-light bg-transparent cursor-pointer outline-none"
+        >
+          {LANGUAGES.map((lang) => <option key={lang} value={lang}>{lang}</option>)}
+        </select>
+      </div>
 
       <div className="relative">
         {/* Highlighted layer: pointer-events pass through to the textarea.
@@ -87,7 +103,9 @@ export default function CodeBlock({ block, editor }) {
           placeholder="// code"
           onChange={(e) => editor.updateBlock(block.id, { content: e.target.value })}
           onKeyDown={onKeyDown}
-          className={`${sharedStyle} absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-ink outline-none`}
+          // text-transparent lets the highlighted layer show through, but it
+          // would also hide the placeholder — restore its color explicitly.
+          className={`${sharedStyle} absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-ink outline-none placeholder:text-ink-light/60`}
         />
       </div>
     </div>
