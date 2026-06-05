@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Sidebar from './components/Sidebar'
 import Editor from './components/Editor'
 import { useAutoSave } from './hooks/useAutoSave'
-import { listDocuments, loadDocument, createDocument, deleteDocument, saveDocument } from './services/storage'
+import { listDocuments, loadDocument, createDocument, createStarterDocument, deleteDocument, saveDocument } from './services/storage'
 import { downloadMarkdown } from './services/exportMarkdown'
 import { exportPDF } from './services/exportPDF'
 
@@ -15,14 +15,15 @@ export default function App() {
   const [docs, setDocs] = useState(() => listDocuments())
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  // Open the most recent doc, or bootstrap a first one on a fresh browser.
+  // Open the most recent doc; a completely fresh browser gets the guided
+  // starter document instead of a blank page.
   const [doc, setDoc] = useState(() => {
     const existing = listDocuments()
     if (existing.length > 0) {
       const loaded = loadDocument(existing[0].id)
       if (loaded) return loaded
     }
-    return createDocument()
+    return createStarterDocument()
   })
 
   const saveStatus = useAutoSave(doc)

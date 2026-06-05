@@ -4,7 +4,7 @@
 // block array. This keeps document switches cheap and avoids one giant blob
 // that gets rewritten on every keystroke of every doc.
 
-import { createBlock } from '../types/blockTypes'
+import { BlockType, createBlock } from '../types/blockTypes'
 
 const INDEX_KEY = 'nbe:index'
 const DOC_PREFIX = 'nbe:doc:'
@@ -63,6 +63,37 @@ export function createDocument(title = 'Untitled') {
     id: crypto.randomUUID(),
     title,
     blocks: [createBlock()],
+  }
+  saveDocument(doc)
+  return doc
+}
+
+// The very first thing a new user sees. A blinking cursor on a blank page
+// teaches nothing; a short document that *demonstrates* each feature teaches
+// the whole editor in ten seconds of reading. Only created when no documents
+// exist yet — never re-imposed on someone who deleted it.
+export function createStarterDocument() {
+  const doc = {
+    id: crypto.randomUUID(),
+    title: 'Getting started',
+    blocks: [
+      createBlock(BlockType.HEADING1, 'Welcome 👋'),
+      createBlock(BlockType.PARAGRAPH,
+        'This is a block-based editor. Every line is a block you can transform, reorder and style.'),
+      createBlock(BlockType.HEADING2, 'The basics'),
+      createBlock(BlockType.BULLETED, 'Type <code>/</code> on an empty line to insert any block type'),
+      createBlock(BlockType.BULLETED, 'Select text to format it — or use <b>⌘B</b>, <i>⌘I</i>, <u>⌘U</u>, <code>⌘`</code>'),
+      createBlock(BlockType.BULLETED, 'Hover a block and drag the dots on the left to reorder'),
+      createBlock(BlockType.BULLETED,
+        'Start a line with <code># </code>, <code>- </code> or <code>1. </code> and it transforms as you type'),
+      createBlock(BlockType.QUOTE, 'Press ⌘Z to undo anything — including deletes and moves.'),
+      createBlock(BlockType.CODE,
+        '// Code blocks highlight as you type\nconst greet = (name) => `Hello, ${name}!`',
+        { language: 'javascript' }),
+      createBlock(BlockType.DIVIDER),
+      createBlock(BlockType.PARAGRAPH,
+        'Create your own document from the sidebar (⌘\\ toggles it). Happy writing!'),
+    ],
   }
   saveDocument(doc)
   return doc
