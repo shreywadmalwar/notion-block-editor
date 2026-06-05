@@ -32,6 +32,17 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
   const { sensors, onDragEnd } = useDragDrop(editor)
   const contentRef = useRef(null)
 
+  // Auto-size the title textarea to its content — collapse then re-measure
+  // so it also shrinks when text is deleted.
+  const titleRef = useRef(null)
+  useEffect(() => {
+    const el = titleRef.current
+    if (el) {
+      el.style.height = 'auto'
+      el.style.height = `${el.scrollHeight}px`
+    }
+  }, [doc.title])
+
   // Bubble block changes up for autosave. useEditor is the source of truth
   // while this document is mounted; App just persists what it's told.
   useEffect(() => {
@@ -204,14 +215,18 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
   return (
     <div className="flex h-full flex-1 flex-col overflow-y-auto" onKeyDownCapture={onKeyDownCapture} onScroll={onScroll}>
       <div className="mx-auto w-full max-w-[720px] flex-1 px-8 pb-32 pt-16 print-content" onClick={onCanvasClick}>
-        {/* Document title — an input, not contentEditable: titles are plain
-            text and inputs give us placeholder + selection behavior for free. */}
-        <input
+        {/* Document title — a self-sizing textarea rather than an input:
+            real document names run long, and a single-line input clips them.
+            Plain text either way; titles don't carry formatting. */}
+        <textarea
           data-title="true"
+          ref={titleRef}
+          rows={1}
           value={doc.title}
           onChange={(e) => onTitleChange(e.target.value)}
           onKeyDown={(e) => {
-            // Enter in the title drops into the first block, like Notion.
+            // Enter in the title drops into the first block, like Notion —
+            // a title is one (wrapped) line, never a paragraph.
             if (e.key === 'Enter') {
               e.preventDefault()
               const first = editor.blocks[0]
@@ -219,7 +234,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
             }
           }}
           placeholder="Untitled"
-          className="mb-6 w-full bg-transparent text-[40px] font-bold leading-tight text-ink outline-none placeholder:text-ink-light/40 print-title"
+          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[40px] font-bold leading-tight text-ink outline-none placeholder:text-ink-light/40 print-title"
         />
 
         <div ref={contentRef}>

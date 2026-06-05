@@ -46,6 +46,8 @@ export default function SlashMenu({ anchorRect, query, onSelect, onClose, active
   return (
     <div
       ref={menuRef}
+      role="listbox"
+      aria-label={`Block types${query ? `, filtered by ${query}` : ''}`}
       className="fixed z-50 w-64 max-h-72 overflow-y-auto rounded-lg border border-black/10 bg-white py-1.5 shadow-xl shadow-black/10 print-hidden"
       style={{
         left: Math.min(anchorRect.left, window.innerWidth - 270),
@@ -62,6 +64,8 @@ export default function SlashMenu({ anchorRect, query, onSelect, onClose, active
       {items.map((item, i) => (
         <button
           key={item.type}
+          role="option"
+          aria-selected={i === activeIndex}
           // mousedown + preventDefault keeps focus in the block, so the
           // caret survives the menu selection.
           onMouseDown={(e) => {

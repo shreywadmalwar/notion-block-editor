@@ -27,6 +27,19 @@ export default function App() {
 
   const saveStatus = useAutoSave(doc)
 
+  // ⌘\ / Ctrl+\ toggles the sidebar — it's collapsible, so it must also be
+  // reachable without the mouse (matches Notion's binding).
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === '\\') {
+        e.preventDefault()
+        setSidebarOpen((o) => !o)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
   // Refresh the sidebar listing once a save lands — titles and ordering both
   // come from the index that saveDocument maintains.
   useEffect(() => {
