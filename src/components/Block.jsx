@@ -28,8 +28,9 @@ export default function Block({ block, editor, onSlash, number }) {
       // group/block scopes the hover reveal to this block alone; a plain
       // `group` would collide with the code block's own hover group. The
       // faint hover tint ties the far-left drag handle visually to the block
-      // it belongs to on wide screens.
-      className="group/block relative flex items-start rounded transition-colors duration-100 hover:bg-hov"
+      // it belongs to on wide screens — canhover-gated, because on touch the
+      // synthetic hover sticks after a tap and blocks stay highlighted.
+      className="group/block relative flex items-start rounded transition-colors duration-100 canhover:hover:bg-hov"
     >
       {/* Drag handle gutter: lives in negative margin so block text stays
           perfectly aligned with the title above. Invisible until hover —

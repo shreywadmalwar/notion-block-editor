@@ -16,7 +16,12 @@ import { exportPDF } from './services/exportPDF'
 
 export default function App() {
   const [docs, setDocs] = useState(() => listDocuments())
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  // On a phone the sidebar is an overlay (it covers the document rather than
+  // sharing the row), so it starts closed there — open-by-default would hide
+  // the editor behind a document list on first load.
+  const isMobile = () => window.matchMedia('(max-width: 767px)').matches
+  const [sidebarOpen, setSidebarOpen] = useState(() => !isMobile())
   const [theme, toggleTheme] = useThemeState()
 
   // 'editor' or 'about' — no router needed for two views. Picking a document
@@ -63,6 +68,9 @@ export default function App() {
 
   const selectDoc = (id) => {
     setView('editor')
+    // Picking a document is the end of the sidebar errand on mobile — leave
+    // it open and it would keep covering the very document just chosen.
+    if (isMobile()) setSidebarOpen(false)
     if (id === doc.id) return
     // Persist the outgoing doc immediately — don't gamble on the debounce.
     saveDocument(doc)
@@ -75,6 +83,8 @@ export default function App() {
     saveDocument(doc)
     setDoc(createDocument())
     setDocs(listDocuments())
+    // Same as selecting: a new document means writing, not browsing.
+    if (isMobile()) setSidebarOpen(false)
   }
 
   const removeDoc = (id) => {
@@ -109,6 +119,7 @@ export default function App() {
         onCreate={createDoc}
         onRename={renameDoc}
         onDelete={removeDoc}
+        onClose={() => setSidebarOpen(false)}
       />
 
       <main className="relative flex min-w-0 flex-1 flex-col">

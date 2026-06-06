@@ -31,6 +31,10 @@ export default {
     // visible where hover doesn't exist.
     function ({ addVariant }) {
       addVariant('coarse', '@media (pointer: coarse)')
+      // …and the inverse problem: hover styles on touch devices *stick* after
+      // a tap (the synthetic hover never clears until you tap elsewhere), so
+      // decorative hover tints must only exist where hover is real.
+      addVariant('canhover', '@media (hover: hover)')
     },
   ],
 }

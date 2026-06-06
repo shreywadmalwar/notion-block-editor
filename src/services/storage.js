@@ -85,7 +85,13 @@ export function createDocument(title) {
 // teaches nothing; a short document that *demonstrates* each feature teaches
 // the whole editor in ten seconds of reading. Only created when no documents
 // exist yet — never re-imposed on someone who deleted it.
+//
+// The copy adapts to the input device: "hover", "⌘B" and "⌘\" are
+// instructions for a machine a touch user doesn't have. The doc is written
+// once at first launch, so a device switch later keeps the original copy —
+// acceptable, since the alternative is mutating a user's document.
 export function createStarterDocument() {
+  const touch = window.matchMedia('(pointer: coarse)').matches
   const doc = {
     id: crypto.randomUUID(),
     title: 'Getting started',
@@ -95,17 +101,24 @@ export function createStarterDocument() {
         'This is a block-based editor. Every line is a block you can transform, reorder and style.'),
       createBlock(BlockType.HEADING2, 'The basics'),
       createBlock(BlockType.BULLETED, 'Type <code>/</code> on an empty line to insert any block type'),
-      createBlock(BlockType.BULLETED, 'Select text to format it — or use <b>⌘B</b>, <i>⌘I</i>, <u>⌘U</u>, <code>⌘`</code>'),
-      createBlock(BlockType.BULLETED, 'Hover a block and drag the dots on the left to reorder'),
+      createBlock(BlockType.BULLETED, touch
+        ? 'Select text and format it with the <b>toolbar</b> that pops up'
+        : 'Select text to format it — or use <b>⌘B</b>, <i>⌘I</i>, <u>⌘U</u>, <code>⌘`</code>'),
+      createBlock(BlockType.BULLETED, touch
+        ? 'Touch and hold the dots beside a block to drag it into a new spot'
+        : 'Hover a block and drag the dots on the left to reorder'),
       createBlock(BlockType.BULLETED,
         'Start a line with <code># </code>, <code>- </code> or <code>1. </code> and it transforms as you type'),
-      createBlock(BlockType.QUOTE, 'Press ⌘Z to undo anything — including deletes and moves.'),
+      createBlock(BlockType.QUOTE, touch
+        ? 'Everything is undoable — including deletes and moves.'
+        : 'Press ⌘Z to undo anything — including deletes and moves.'),
       createBlock(BlockType.CODE,
         '// Code blocks highlight as you type\nconst greet = (name) => `Hello, ${name}!`',
         { language: 'javascript' }),
       createBlock(BlockType.DIVIDER),
-      createBlock(BlockType.PARAGRAPH,
-        'Create your own document from the sidebar (⌘\\ toggles it). Happy writing!'),
+      createBlock(BlockType.PARAGRAPH, touch
+        ? 'Create your own document from the sidebar (the ☰ button opens it). Happy writing!'
+        : 'Create your own document from the sidebar (⌘\\ toggles it). Happy writing!'),
     ],
   }
   saveDocument(doc)

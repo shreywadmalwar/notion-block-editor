@@ -199,22 +199,29 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
     return (text.match(/\S+/g) || []).length
   }, [editor.blocks])
 
-  // Clicking the empty space under the last block focuses it (or creates a
-  // paragraph if the doc ends in something non-editable) — the page should
-  // feel like one continuous canvas, not a list with dead zones.
+  // Clicking the empty space under the last block always yields a place to
+  // type, like Notion: reuse a trailing empty paragraph if there is one,
+  // otherwise append a fresh block (insertBlockAfter carries the same
+  // end-of-block Enter semantics — paragraphs after prose, a new item after
+  // a list). Merely focusing the end of the last block reads as "nothing
+  // happened" when that block already has text — the page should feel like
+  // one continuous canvas, not a list with dead zones.
   const onCanvasClick = (e) => {
     if (e.target !== e.currentTarget) return
     const last = editor.blocks[editor.blocks.length - 1]
-    if (last && last.type !== BlockType.DIVIDER && last.type !== BlockType.CODE) {
-      editor.focusBlock(last.id, 'end')
-    } else if (last) {
-      editor.insertBlockAfter(last.id)
-    }
+    if (!last) return
+    const emptyParagraph = last.type === BlockType.PARAGRAPH && !plainText(last.content).trim()
+    if (emptyParagraph) editor.focusBlock(last.id, 'end')
+    else editor.insertBlockAfter(last.id)
   }
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-y-auto" onKeyDownCapture={onKeyDownCapture} onScroll={onScroll}>
-      <div className="mx-auto w-full max-w-[720px] flex-1 px-8 pb-32 pt-16 print-content" onClick={onCanvasClick}>
+      {/* The 32px gutter (px-8) is load-bearing at every width: the drag
+          handle lives at -left-8, so anything narrower clips it off-screen —
+          and on touch the handle is always visible. Only the top whitespace
+          shrinks on phones. */}
+      <div className="mx-auto w-full max-w-[720px] flex-1 px-8 pb-32 pt-10 print-content sm:pt-16" onClick={onCanvasClick}>
         {/* Document title — a self-sizing textarea rather than an input:
             real document names run long, and a single-line input clips them.
             Plain text either way; titles don't carry formatting. */}
@@ -234,7 +241,7 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
             }
           }}
           placeholder="Untitled"
-          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[44px] font-bold leading-tight text-ink outline-none placeholder:text-faint print-title"
+          className="mb-6 w-full resize-none overflow-hidden bg-transparent text-[32px] font-bold leading-tight text-ink outline-none placeholder:text-faint print-title sm:text-[44px]"
         />
 
         <div ref={contentRef}>
@@ -273,8 +280,10 @@ export default function Editor({ doc, onBlocksChange, onTitleChange }) {
       {/* Toolbar yields to the slash menu — two floating UIs at once is noise. */}
       {!slashOpen && <FloatingToolbar rect={selectionRect} active={activeFormats} />}
 
-      {/* Bottom status bar: word count, pinned to the editor's bottom edge. */}
-      <div className="print-hidden sticky bottom-0 flex justify-end border-t border-line bg-paper px-4 py-1.5 text-xs text-ink-light">
+      {/* Bottom status bar: word count, pinned to the editor's bottom edge.
+          The safe-area max() keeps it clear of the iOS home indicator now
+          that the viewport draws edge-to-edge (viewport-fit=cover). */}
+      <div className="print-hidden sticky bottom-0 flex justify-end border-t border-line bg-paper px-4 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5 text-xs text-ink-light">
         {wordCount} {wordCount === 1 ? 'word' : 'words'}
       </div>
     </div>

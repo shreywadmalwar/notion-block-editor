@@ -5,6 +5,13 @@
 // updates both live. Notion does exactly this, and it matters: when the
 // canvas title has scrolled away, the nav bar is how you still know (and
 // change) what document you're in.
+//
+// Two device modes, keyed on pointer rather than width (an iPad is wider
+// than many laptops — width breakpoints misclassify it): fine pointers get
+// the row of labelled buttons; coarse pointers get a single ⋯ menu with
+// comfortable 44px-class targets.
+
+import { useEffect, useRef, useState } from 'react'
 
 const buttonChrome =
   'rounded-md border border-line bg-paper px-2.5 py-1 text-xs font-medium text-ink-light shadow-sm transition-colors hover:border-line-strong hover:text-ink'
@@ -21,12 +28,41 @@ export default function NavBar({
   onToggleTheme,
   onShowAbout,
 }) {
+  // The coarse-pointer overflow menu. Closes on any tap outside — pointerdown
+  // rather than click so it also dismisses when the outside tap lands on
+  // something that swallows the click (the editor's contentEditable).
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+  useEffect(() => {
+    if (!menuOpen) return
+    const close = (e) => {
+      if (!menuRef.current?.contains(e.target)) setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [menuOpen])
+
+  // Run the action *then* close — items are thin wrappers over the same
+  // handlers the desktop buttons use.
+  const menuItem = (label, action) => (
+    <button
+      onClick={() => {
+        action()
+        setMenuOpen(false)
+      }}
+      className="block w-full px-4 py-2.5 text-left text-sm text-ink hover:bg-hov"
+    >
+      {label}
+    </button>
+  )
+
   return (
-    <nav className="print-hidden flex h-11 shrink-0 items-center gap-2 border-b border-line bg-paper px-3">
+    <nav className="print-hidden flex h-11 shrink-0 items-center gap-2 border-b border-line bg-paper px-3 coarse:h-12">
       <button
         onClick={onToggleSidebar}
         title={`${sidebarOpen ? 'Collapse' : 'Open'} sidebar (⌘\\)`}
-        className="rounded p-1.5 text-ink-light hover:bg-hov hover:text-ink"
+        aria-label={`${sidebarOpen ? 'Collapse' : 'Open'} sidebar`}
+        className="rounded p-1.5 text-ink-light hover:bg-hov hover:text-ink coarse:p-2.5"
       >
         {sidebarOpen ? '«' : '☰'}
       </button>
@@ -35,7 +71,8 @@ export default function NavBar({
 
       {/* Inline rename: an undecorated input that reveals itself as editable
           on hover/focus. Sized to its content so the breadcrumb hugs the
-          text like a label rather than stretching across the bar. */}
+          text like a label rather than stretching across the bar; truncate
+          shows an honest ellipsis when the bar runs out of room. */}
       <input
         value={title}
         onChange={(e) => onTitleChange(e.target.value)}
@@ -45,7 +82,7 @@ export default function NavBar({
         placeholder="Untitled"
         aria-label="Document title"
         size={Math.max((title || 'Untitled').length, 4)}
-        className="max-w-[50vw] rounded bg-transparent px-1.5 py-0.5 text-sm font-medium text-ink outline-none placeholder:text-faint hover:bg-hov focus:bg-hov"
+        className="min-w-0 max-w-[28vw] truncate rounded bg-transparent px-1.5 py-0.5 text-sm font-medium text-ink outline-none placeholder:text-faint hover:bg-hov focus:bg-hov sm:max-w-[50vw]"
       />
 
       {/* Global document actions live top-right, in the chrome — and stay
@@ -56,20 +93,48 @@ export default function NavBar({
             Couldn&apos;t save — storage may be full
           </span>
         )}
-        <button onClick={onShowAbout} className={buttonChrome}>
-          About
-        </button>
-        <button onClick={onExportMarkdown} className={buttonChrome}>
-          ↓ Markdown
-        </button>
-        <button onClick={onExportPDF} className={buttonChrome}>
-          ↓ PDF
-        </button>
+
+        {/* Fine pointers: the full labelled row. The full word "Markdown"
+            doesn't fit a phone-width bar next to the title — collapse it to
+            the conventional file-extension shorthand below sm. */}
+        <div className="flex items-center gap-1.5 coarse:hidden">
+          <button onClick={onShowAbout} className={buttonChrome}>
+            About
+          </button>
+          <button onClick={onExportMarkdown} className={buttonChrome}>
+            ↓ <span className="hidden sm:inline">Markdown</span>
+            <span className="sm:hidden">MD</span>
+          </button>
+          <button onClick={onExportPDF} className={buttonChrome}>
+            ↓ PDF
+          </button>
+        </div>
+
+        {/* Coarse pointers: one ⋯ menu instead of three small buttons — a
+            single generous target beats three sub-44px ones. */}
+        <div ref={menuRef} className="relative hidden coarse:block">
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Document actions"
+            aria-expanded={menuOpen}
+            className="rounded-md border border-line bg-paper px-3 py-1.5 text-base leading-none text-ink-light shadow-sm"
+          >
+            ⋯
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full z-50 mt-1 w-48 overflow-hidden rounded-lg border border-line bg-paper py-1 shadow-lg">
+              {menuItem('About', onShowAbout)}
+              {menuItem('↓ Export Markdown', onExportMarkdown)}
+              {menuItem('↓ Export PDF', onExportPDF)}
+            </div>
+          )}
+        </div>
+
         <button
           onClick={onToggleTheme}
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           aria-label="Toggle theme"
-          className="rounded-md p-1.5 text-ink-light transition-colors hover:bg-hov hover:text-ink"
+          className="rounded-md p-1.5 text-ink-light transition-colors hover:bg-hov hover:text-ink coarse:p-2.5"
         >
           {theme === 'dark' ? (
             // Sun
